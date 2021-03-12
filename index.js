@@ -9,7 +9,12 @@ client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
 });
 
+client.on("message", (message) => {
+    console.log(message.content)
+})
 
 
 client.login(process.env.BOT_TOKEN)
-
+app.get('/', (req, res) =>  res.sendFile(path.resolve('dist/index.html')));
+app.listen(process.env.PORT || 3000, 
+	() => console.log("Server is running..."));
