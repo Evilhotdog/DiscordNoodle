@@ -15,6 +15,6 @@ client.on("message", (message) => {
 
 
 client.login(process.env.BOT_TOKEN)
-app.get('/', (req, res) =>  res.sendFile(path.resolve('dist/index.html')));
+app.get('/', (req, res) =>  res.sendFile(path.resolve('src/index.html')));
 app.listen(process.env.PORT || 3000, 
 	() => console.log("Server is running..."));
