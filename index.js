@@ -11,7 +11,23 @@ const e = require("express");
 const app = express()
 const client = new Discord.Client();
 mongoose.connect(process.env.URI, {useNewUrlParser: true})
-  
+async function find(guild, channel) {
+    Guild.findOne({guild_id: guild.id}).then(doc => {
+        console.log("+++"+ doc)
+        if (doc) {
+        return doc.channels.filter(c => c.id == channel.id).messages
+        } else {return [{author: "SYSTEM", message: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages"}]}
+    }
+) 
+}
+
+async function rm(guild) {
+    await Guild.deleteOne({id: guild.id}, (err) => {if (err) return err})
+    let gld = new Guild(guild)
+    console.log(gld.categories[0].channels[0].messages)
+    await gld.save()
+    return 0
+}
 function updateGuilds() {
     
     const guilds = client.guilds
@@ -20,17 +36,14 @@ function updateGuilds() {
         const categories = guild.channels.cache.filter(c => c.type=="category")
         let categoryObjects = []
         categories.forEach(category => {
-            channelObjects = []
+            let channelObjects = []
             category.children.forEach((channel) => {
-                channelMessages = []
-                Guild.exists({id: guild.id}).then(result => {
-                    if (result) {
-                    console.log("___" + category.name)
-                    Guild.findOne({id: guild.id}, (err, doc) => {
-                        console.log("+++"+ doc)
-                        channelMessages = doc.channels.cache.filter(c => c.id == channel.id).messages
-                    })}
-                }) 
+                console.log(guild.id)
+                
+                console.log("___" + category.name)
+                let channelMessages = find(guild, channel)
+                console.log("Channel messages")
+                console.log(channelMessages)
                 channelObjects.push({
                     id: channel.id,
                     name: channel.name,
@@ -46,11 +59,13 @@ function updateGuilds() {
             })
             guildObjects.push({
                 name: guild.name,
-                id: guild.id,
+                guild_id: guild.id,
                 categories: categoryObjects
             })
         })
-        console.log(guildObjects)
+        guildObjects.forEach(guild => {
+            let x = rm(guild)
+        })
         console.log(guildObjects[0].categories)
     }
 
