@@ -172,8 +172,11 @@ client.on("message", (message) => {
             if (password == passwordConfirm) {
                 client.guilds.cache.forEach((guild) => {
                     guild.members.fetch()
+                    console.log(guild)
                 })
-                const userGuilds = client.guilds.cache.filter((guild) => guild.members.cache.has(message.author.id)).map((guild) => {guild.id})
+                
+                const userGuilds = [...client.guilds.cache.filter(guild => guild.members.cache.has(message.author.id)).values()].map((guild) => guild.id)
+                console.log("User guilds")
                 console.log(userGuilds)
                 bcrypt.hash(password, 12, (err, hash) => {
                     console.log(hash)
