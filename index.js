@@ -173,7 +173,7 @@ client.on("message", (message) => {
                 client.guilds.cache.forEach((guild) => {
                     guild.members.fetch()
                 })
-                const userGuilds = client.guilds.cache.filter((guild) => {guild.members.cache.has(message.author.id)}).map((guild) => {guild.id})
+                const userGuilds = client.guilds.cache.filter((guild) => guild.members.cache.has(message.author.id)).map((guild) => {guild.id})
                 console.log(userGuilds)
                 bcrypt.hash(password, 12, (err, hash) => {
                     console.log(hash)
@@ -205,8 +205,12 @@ client.on("message", (message) => {
             let categoryIndex = guild.categories.findIndex((category) => category.category_id == message.channel.parentID)
             let channelIndex = guild.categories[categoryIndex].channels.findIndex((channel) => channel.channel_id == message.channel.id)
             guild.categories[categoryIndex].channels[channelIndex].messages.push(mssg)
-            guild.save()
+            
+        } else {
+            let channelIndex = guild.freeChannels.findIndex((channel) => channel.channel_id == message.channel_id)
+            guild.freeChannels[channelIndex].messages.push(mssg)
         }
+        guild.save()
     })
 
     }
