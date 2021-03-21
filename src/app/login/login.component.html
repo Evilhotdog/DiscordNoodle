@@ -1,1 +1,16 @@
-<p>login works!</p>
+<div>
+    <form (ngSubmit)="login()" #loginForm="ngForm">
+    {{diagnostic}}
+    <div class="form-group">
+        <label for = "username">Username</label>
+        <input required [(ngModel)]="model.username" name="username" #username="ngModel" id="username" type="text" class="form-control">
+        <div *ngIf="username.valid">Username is required</div>
+    </div>
+    <div class="form-group">
+        <label for = "password">Password</label>
+        <input required [(ngModel)]="model.password" name="password" #password="ngModel" id="password" type="text" class="form-control">
+        <div *ngIf="password.valid">Password is required</div>
+    </div>
+    <button>Submit</button>
+    </form>
+</div> 
