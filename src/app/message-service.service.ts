@@ -10,7 +10,7 @@ export class MessageServiceService {
   socket;
   setupSocketConnection() {
     console.log("--connecting--")
-    this.socket = io('https://discordnoodle.herokuapp.com:3000')
+    this.socket = io()
   }
   login(loginParams) {
     console.log(loginParams)
