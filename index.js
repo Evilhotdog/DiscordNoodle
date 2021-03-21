@@ -155,7 +155,12 @@ client.on("ready", () => {
     updateGuilds()
 });
 
-
+client.on("guildCreate", () => {
+    updateGuilds()
+})
+client.on("guildDelete", () => {
+    updateGuilds()
+})
 
 client.on("message", (message) => {
     if (message.content.startsWith("!register")) {
