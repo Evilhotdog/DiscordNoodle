@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
                 
                 if (result) {
                     //send initial DB result
-                    findGuilds().then((guilds) => {
+                    Guild.find({}).then((guilds) => {
                         guilds = guilds.filter((guild) => user.guilds.includes(guild.guild_id))
                     socket.emit("loginSucceeded", guilds)
                     })
@@ -200,7 +200,12 @@ client.on("message", (message) => {
         if (message.guild) {
     let mssg = new Message({author: message.author, content: message.content})
     console.log(mssg)
-    io.in(message.guild.id).emit("message", mssg)
+    let emitMssg = {...mssg, ...{guild_id: message.guild.id, channel_id: message.channel.id}}
+    console.log(message.channel)
+    if (message.channel.parent) {
+        emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
+    }
+    io.in(message.guild.id).emit("message", emitMssg)
     Guild.findOne({guild_id: message.guild.id}, (err, guild) => {
         if (message.channel.parent) {
             console.log(guild.categories)
