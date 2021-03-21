@@ -194,6 +194,7 @@ client.on("message", (message) => {
         
 
     } else {
+        if (message.guild) {
     let mssg = new Message({author: message.author, content: message.content})
     console.log(mssg)
     io.in(message.guild.id).emit("message", mssg)
@@ -209,6 +210,7 @@ client.on("message", (message) => {
     })
 
     }
+}
 })
 
 
