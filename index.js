@@ -210,7 +210,7 @@ client.on("message", (message) => {
             guild.categories[categoryIndex].channels[channelIndex].messages.push(mssg)
             
         } else {
-            let channelIndex = guild.freeChannels.findIndex((channel) => channel.channel_id == message.channel_id)
+            let channelIndex = guild.freeChannels.findIndex((channel) => channel.channel_id == message.channel.id)
             guild.freeChannels[channelIndex].messages.push(mssg)
         }
         guild.save()
