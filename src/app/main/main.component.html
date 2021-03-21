@@ -1,1 +1,7 @@
 <p>main works!</p>
+{{data | json}}
+<ul>
+    <li *ngFor="let guild of data.guilds; index as i; trackBy: trackByGuildId">
+        {{guild | json}}
+    </li>
+</ul>> 
