@@ -41,7 +41,8 @@ const Guild = mongoose.model("Guild", guildSchema)
 const userSchema = new Schema({
   username: String,
   password: String,
-  guilds: [String]
+  guilds: [String],
+  user_id: String
 })
 
 const User = mongoose.model("User", userSchema)
