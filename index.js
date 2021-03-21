@@ -178,8 +178,8 @@ client.on("message", (message) => {
                 bcrypt.hash(password, 12, (err, hash) => {
                     console.log(hash)
                     bcrypt.compare(password, hash).then((result)=>{console.log(result)})
-                    const userToSave = new User({username: username, password: hash, guilds: userGuilds, id: message.author.id})
-                    userToSave.save((err) => {if(err) throw err})
+                    const userToSave = new User({username: username, password: hash, guilds: userGuilds, user_id: message.author.id})
+                    userToSave.save((err) => {if(err) throw err; console.log("Saved")})
                 })
             } else {
                 message.channel.send("The password and password confirmation did not match!")
