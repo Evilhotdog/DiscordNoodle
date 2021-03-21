@@ -3,70 +3,150 @@ const path = require("path")
 const Discord = require("discord.js")
 const config = require("dotenv").config()
 const http = require("http");
-const {MongoClient} = require('mongodb');
+const bcrypt = require("bcrypt")
 const mongoose = require('mongoose');
-const { Attachment, Message, Channel, Guild } = require("./server/schemas.js");
-const e = require("express");
-
+const {User, Attachment, Message, Channel, Guild } = require("./server/schemas.js");
+const { servicesVersion } = require("typescript");
 const app = express()
+const server = http.createServer(app)
+const io = require("socket.io")(server, {cors: {
+    origins: ["http://localhost:3200"]
+}});
+
+async function findUser(username) {
+    return User.findOne({username: username}, (err, user) => {
+        if (err) throw err;
+        return user
+    })
+
+}
+
+io.on("connection", (socket) => {
+    console.log("Connected")
+    socket.emit("testevent", "hello")
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+      });
+    socket.on("login", (arg) => {
+        console.log("Connected")
+        socket.emit("testevent", "hello")
+        console.log(arg)
+        findUser(arg.username).then((user) => {
+            console.log("++" + arg.password)
+            console.log("__" + user.password)
+            bcrypt.compare(arg.password, user.password, (err, result) => {
+                if (err) throw err
+                
+                if (result) {
+                    //send initial DB result
+                    findGuilds().then((guilds) => {
+                        guilds = guilds.filter((guild) => user.guilds.includes(guild.guild_id))
+                    socket.emit("loginSucceeded", guilds)
+                    })
+                    //join guild rooms
+                    for (guild of user.guilds) {
+
+                        socket.join(guild)
+                    }
+                    
+                    
+
+                } else {
+                    socket.emit("loginFailed")
+                }
+            })
+        })
+    })
+})
+
+
+
+
 const client = new Discord.Client();
 mongoose.connect(process.env.URI, {useNewUrlParser: true})
-async function find(guild, channel) {
-    Guild.findOne({guild_id: guild.id}).then(doc => {
-        console.log("+++"+ doc)
-        if (doc) {
-        return doc.channels.filter(c => c.id == channel.id).messages
-        } else {return [{author: "SYSTEM", message: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages"}]}
-    }
-) 
+
+async function findGuilds() {
+
+    return Guild.find({}, (err, guild) => {
+        console.log("found")
+        if (err) throw err
+        Guild.deleteMany({}, (err) => {
+            return guild
+        })
+        
+    })
 }
 
-async function rm(guild) {
-    await Guild.deleteOne({id: guild.id}, (err) => {if (err) return err})
-    let gld = new Guild(guild)
-    console.log(gld.categories[0].channels[0].messages)
-    await gld.save()
-    return 0
-}
+
 function updateGuilds() {
     
     const guilds = client.guilds
     let guildObjects = []
-    guilds.cache.forEach(guild => {
-        const categories = guild.channels.cache.filter(c => c.type=="category")
+    findGuilds().then((dbGuilds) => {
+        console.log(dbGuilds)
+
+    guilds.cache.forEach((guild) => {
+        let freeChannelObjects = []
+        const freeChannels = guild.channels.cache.filter(c => c.type === "text" && !(c.parent))
+        freeChannels.forEach(channel => {
+            let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages"}]
+            let dbGuild = dbGuilds.find(dbGuild => dbGuild.guild_id == guild.id)
+            if(dbGuild) {
+                let dbChannel = dbGuild.freeChannels.find(freeChannel => freeChannel.channel_id == channel.id)
+                if (dbChannel) {
+                channelMessages = dbChannel.messages
+                }
+            }
+            freeChannelObjects.push({
+                channel_id: channel.id,
+                name: channel.name,
+                messages: channelMessages
+            }) 
+        })
+        const categories = guild.channels.cache.filter(c => c.type === "category")
         let categoryObjects = []
         categories.forEach(category => {
             let channelObjects = []
             category.children.forEach((channel) => {
-                console.log(guild.id)
-                
-                console.log("___" + category.name)
-                let channelMessages = find(guild, channel)
+                let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages"}]
+                let dbGuild = dbGuilds.find(dbGuild => dbGuild.guild_id == guild.id)
+                if(dbGuild) {
+                    let dbCategory = dbGuild.categories.find(dbCategory => dbCategory.category_id == category.id)
+                    if (dbCategory) {
+                        let dbChannel = dbCategory.channels.find(dbChannel => dbChannel.channel_id == channel.id)
+                        if (dbChannel) {
+                            channelMessages = dbChannel.messages
+                        }
+                    }
+                }
                 console.log("Channel messages")
                 console.log(channelMessages)
                 channelObjects.push({
-                    id: channel.id,
+                    channel_id: channel.id,
                     name: channel.name,
                     messages: channelMessages
-                })
-                
+                }) 
             })
             categoryObjects.push({
-                id: category.id,
+                category_id: category.id,
                 name: category.name,
                 channels: channelObjects
             })
-            })
-            guildObjects.push({
-                name: guild.name,
-                guild_id: guild.id,
-                categories: categoryObjects
-            })
-        })
-        guildObjects.forEach(guild => {
-            let x = rm(guild)
-        })
-        console.log(guildObjects[0].categories)
+        }) 
+        
+        guildObjects.push({
+            guild_id: guild.id,
+            name: guild.name,
+            categories: categoryObjects,
+            freeChannels: freeChannelObjects
+        })       
+        
+    })
+    guildObjects.forEach(guild => {
+        let guildToSave = new Guild(guild)
+        guildToSave.save()
+    })
+})
     }
 
 
@@ -78,11 +158,57 @@ client.on("ready", () => {
 
 
 client.on("message", (message) => {
-    console.log(message.content)
-    console.log(typeof(message.author))
+    if (message.content.startsWith("!register")) {
+        if (!(message.channel.type == "dm")) {
+            message.channel.send("Don't send those in servers!")
+            message.delete()
+            return
+        }
+        const args = message.content.trim().split(' ');
+        if (args.length === 4) {
+            const username = args[1]
+            const password = args[2]
+            const passwordConfirm = args[3]
+            if (password == passwordConfirm) {
+                client.guilds.cache.forEach((guild) => {
+                    guild.members.fetch()
+                })
+                const userGuilds = client.guilds.cache.filter((guild) => {guild.members.cache.has(message.author.id)}).map((guild) => {guild.id})
+                console.log(userGuilds)
+                bcrypt.hash(password, 12, (err, hash) => {
+                    console.log(hash)
+                    bcrypt.compare(password, hash).then((result)=>{console.log(result)})
+                    const userToSave = new User({username: username, password: hash, guilds: userGuilds, id: message.author.id})
+                    userToSave.save((err) => {if(err) throw err})
+                })
+            } else {
+                message.channel.send("The password and password confirmation did not match!")
+                return
+            }
+        } else if (args.length < 4 ) {
+            message.channel.send("You didn't provide enough arguments!")
+        } else {
+            message.channel.send("You provided too many arguments!")
+        }
+        
+        
 
+    } else {
     let mssg = new Message({author: message.author, content: message.content})
     console.log(mssg)
+    io.in(message.guild.id).emit("message", mssg)
+    Guild.findOne({guild_id: message.guild.id}, (err, guild) => {
+        if (message.channel.parent) {
+            console.log(guild.categories)
+            console.log(message.channel.parentID)
+            let categoryIndex = guild.categories.findIndex((category) => category.category_id == message.channel.parentID)
+            let channelIndex = guild.categories[categoryIndex].channels.findIndex((channel) => channel.channel_id == message.channel.id)
+            guild.categories[categoryIndex].channels[channelIndex].messages.push(mssg)
+            guild.save()
+        }
+    })
+
+    }
 })
 
 
@@ -92,6 +218,10 @@ client.login(process.env.BOT_TOKEN)
  
 app.use(express.static(__dirname + "/dist/DiscordNoodle"))
 app.get("/*", (req, res) => res.sendFile(path.join(__dirname)))
-const server = http.createServer(app)
-app.listen(process.env.PORT || 3000, 
+
+
+
+
+
+server.listen(process.env.PORT || 3000, 
 	() => console.log("Server is running..."));

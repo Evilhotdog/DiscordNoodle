@@ -26,16 +26,24 @@ const Message = mongoose.model("Message", MessageSchema)
 const channelSchema = new Schema({
     name: String,
     messages: [MessageSchema],
-    id: String
+    channel_id: String
 })
 const Channel = mongoose.model("Channel", channelSchema)
 const guildSchema = new Schema({
     name: String,
-    categories: [{name: String, channels: [channelSchema]}],
-    channels: [channelSchema],
+    categories: [{name: String, channels: [channelSchema], category_id: String}],
+    freeChannels: [channelSchema],
     guild_id: String
   }
 );
 const Guild = mongoose.model("Guild", guildSchema)
 
-module.exports = {Attachment, Message, Channel, Guild}
+const userSchema = new Schema({
+  username: String,
+  password: String,
+  guilds: [String]
+})
+
+const User = mongoose.model("User", userSchema)
+
+module.exports = {User, Attachment, Message, Channel, Guild}
