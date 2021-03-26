@@ -7,6 +7,8 @@ import { MessageServiceService } from "../message-service.service"
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent implements OnInit {
+  btn: Element = document.getElementById("btn")
+  container: Element = document.getElementById("container")
   data: any = {};
   routeState: any
   constructor(private socketService: MessageServiceService, private router: Router) {
@@ -42,5 +44,14 @@ export class MainComponent implements OnInit {
   trackByGuildId(index: number, guild: any): string {
     return guild._id
   }
- 
+  open: boolean;
+  change: boolean;
+  public whenClick() {
+    this.open = !this.open
+    
+    this.change = !this.change
+    }
+  public guildClick(guild_id) {
+
+  }
 }

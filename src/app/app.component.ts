@@ -11,7 +11,7 @@ export class AppComponent implements OnInit{
 
   constructor(private socketService: MessageServiceService) {}
   ngOnInit() {
-    alert("preparing to connect")
+    //alert("preparing to connect")
     this.socketService.setupSocketConnection();
     
   }

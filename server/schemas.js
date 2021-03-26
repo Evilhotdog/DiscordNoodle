@@ -33,7 +33,8 @@ const guildSchema = new Schema({
     name: String,
     categories: [{name: String, channels: [channelSchema], category_id: String}],
     freeChannels: [channelSchema],
-    guild_id: String
+    guild_id: String,
+    icon: String
   }
 );
 const Guild = mongoose.model("Guild", guildSchema)

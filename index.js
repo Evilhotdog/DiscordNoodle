@@ -138,8 +138,11 @@ function updateGuilds() {
             guild_id: guild.id,
             name: guild.name,
             categories: categoryObjects,
-            freeChannels: freeChannelObjects
+            freeChannels: freeChannelObjects,
+            icon: guild.iconURL()
         })       
+        console.log(guild.iconURL())
+        console.log(guild.icon)
         
     })
     guildObjects.forEach(guild => {
