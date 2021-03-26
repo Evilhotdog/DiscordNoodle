@@ -1,7 +1,22 @@
-<p>main works!</p>
-{{data | json}}
-<ul>
-    <li *ngFor="let guild of data.guilds; index as i; trackBy: trackByGuildId">
-        {{guild | json}}
-    </li>
-</ul>> 
+<!--{{data.guilds | json}}-->
+<div class="container" id="container" [ngClass]="{'open': open}">
+    <div class="btn" [ngClass]="{'change': change}" (click)="whenClick()"id="btn">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </div>
+<div class="sidebar">
+        
+<div class="serverlist">.
+            <div *ngFor="let guild of this.data.guilds; index as i; trackBy: trackByGuildId" style="width: 100%;">
+                <img src="{{guild.icon || '../../assets/DefaultServer.png'}}" class="icon" title="{{guild.name}}">
+        </div>
+        <div class="channellist"></div>
+</div>
+
+</div>
+<div class="main">
+    <div class="header"></div>
+    <div class="messageBox"></div>
+    <div class="formBox"></div>
+</div>

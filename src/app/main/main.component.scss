@@ -1,0 +1,113 @@
+
+.header {
+	display: block;
+	height: 60px;
+}
+.container {
+    display: flex;
+		position: fixed;
+		width: 100%
+}
+.main {
+	position: absolute;
+	padding-top: 60px;
+}
+.icon {
+	border-radius: 50%;
+	height: 48px;
+	width: 48px;
+	margin: auto;
+}
+.icon:hover {
+	box-shadow: 0px 0px 12px #000;
+	transition: box-shadow 300ms;
+}
+.sidebar {
+	display: flex;
+height: 100vh;
+position: fixed;
+z-index: 1;
+top: 0;
+left: 0;
+background-color: rgb(112, 112, 112);
+overflow-x: hidden;
+padding-top: 60px;
+transition: 0.5s;
+}
+
+@media screen and (min-width: 675px) {
+    .sidebar {
+        width: 300px;
+		padding-top: 0px;
+    }
+    .btn {
+			display: none;
+		}
+		.main {
+			margin-left: 300px;
+			padding-top: 0px;
+		}
+	.bar1, .bar2, .bar3 {
+		display: none;
+	}
+	
+}
+
+ .serverlist {
+	 width: 60px;
+	 background-color: white;
+	 overflow: auto
+ }
+ .channelList {
+	 width: 100%;
+	 overflow: auto;
+ }
+ 
+.btn {
+	z-index: 2;
+	cursor: pointer;
+	display: inline-block;
+}
+.bar1, .bar2, .bar3 {
+	width: 35px;
+  height: 5px;
+  background-color: #333;
+  margin: 6px auto;
+  transition: 0.4s;
+	
+}
+.change .bar1 {
+	transform: rotate(-45deg)translate(-9px, 6px)
+}
+.change .bar2 {
+	opacity: 0;
+}
+.change .bar3 {
+	transform: rotate(45deg) translate(-8px, -8px)
+}
+
+@media screen and (max-width: 675px) {
+    .sidebar {
+        width: 0;
+    }
+		.open .sidebar {
+			width: 100%
+		}
+		.open .btn {
+			
+			right: 10%;
+			
+		}
+		.btn {
+			right: 80%;
+			padding-top: 5px;
+			display: inline-block block;
+			border-radius: 40%;
+			background-color: black;
+			height: 45px;
+			width: 50px;
+			position: fixed;
+			transition: right 2s;
+		}
+	
+}
