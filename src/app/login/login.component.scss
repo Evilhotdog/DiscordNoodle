@@ -1,7 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 form {
     display: flex;
+    padding: 20px;
     margin: auto;
     align-items: center;
+    background-color: #23272A;
+    color: #FFFFFF;
+    border: 1px solid black;
+    border-radius: 10px;
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+}
+:host {
+    background-color: #7289DA;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+    
+}
+
+label {
+    margin-right: 30px;
 }
 
 input {
@@ -18,7 +40,8 @@ input {
 @media screen and (min-width: 675px) {
     
     label {
-        margin-right: 30px;
+        
+        height: 30px;
     }
 
     form {
@@ -31,22 +54,39 @@ input {
         margin: auto;
         border-radius: 50%;
         border-style: solid;
+        height: 60px;
+        width: 60px;
         
     }
 
 }
-@media screen and (max-width: 675px) {
+@media screen and (max-width: 674px) {
     form {
         flex-direction: column;
         max-width: 300px;
-        height: 400px;
+        
+    }
+    
+    input {
+        float: right;
+
+    }
+
+    .form-group {
+        margin-top: 5px;
     }
 
     button {
-        width: 50px;
+        width: 80px;
+        height: 40px;
         margin-left:auto;
         margin-right: auto;
         margin-top: 10px;
+        border: 1px solid #99AAB5;
+        border-radius: 5px;
+    }
+    label {
+        height: 40px;
     }
     
 }
