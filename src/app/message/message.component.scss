@@ -2,14 +2,22 @@ img {
     float: left;
     height: 48px;
     width: 48px;
+    border-radius: 50%;
 }
 .messageContent {
     float: left;
     min-height: 48px;
+    margin-left: 5px;
 }
 .messageComp {
-	background-color: #226;
+	background-color: #72767d;
 	width: 100%;
 	display: flex;
-	padding: 10px;
+}
+.messageComp:hover {
+    background-color: #52565d;
+}
+:host {
+    margin: 10px;
+    background-color: #75767d;
 }
