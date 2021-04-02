@@ -13,20 +13,32 @@ const MessageSchema = new Schema({
       type: String,
       required: true
     },
+    authorname: {
+      type: String,
+      required: true
+    },
+    authoricon: {
+      type: String,
+      required: true
+    },
+    time: {
+      type: Number,
+      required: true
+    },
     content: {
       type: String,
       required: false
     },
     attachments: [attachmentSchema],
-    time: Date,
-    id: String
+    message_id: String
 
   });
 const Message = mongoose.model("Message", MessageSchema)
 const channelSchema = new Schema({
     name: String,
     messages: [MessageSchema],
-    channel_id: String
+    channel_id: String,
+    topic: String
 })
 const Channel = mongoose.model("Channel", channelSchema)
 const guildSchema = new Schema({
@@ -42,7 +54,7 @@ const Guild = mongoose.model("Guild", guildSchema)
 const userSchema = new Schema({
   username: String,
   password: String,
-  guilds: [String],
+  guilds: [{guild_id: String, channels: [String]}],
   user_id: String
 })
 

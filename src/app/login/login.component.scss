@@ -1,0 +1,52 @@
+form {
+    display: flex;
+    margin: auto;
+    align-items: center;
+}
+
+input {
+    width: 160px;
+}
+.form-group {
+    height: 40px;
+}
+.notvalid {
+    width: 100%;
+    background-color: rgb(255, 149, 167);
+    border: 1px solid red;
+}
+@media screen and (min-width: 675px) {
+    
+    label {
+        margin-right: 30px;
+    }
+
+    form {
+        flex-direction: row;
+        width: 380px;
+        height: 300px;
+    }
+    
+    button {
+        margin: auto;
+        border-radius: 50%;
+        border-style: solid;
+        
+    }
+
+}
+@media screen and (max-width: 675px) {
+    form {
+        flex-direction: column;
+        max-width: 300px;
+        height: 400px;
+    }
+
+    button {
+        width: 50px;
+        margin-left:auto;
+        margin-right: auto;
+        margin-top: 10px;
+    }
+    
+}

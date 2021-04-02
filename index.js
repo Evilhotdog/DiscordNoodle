@@ -27,26 +27,56 @@ io.on("connection", (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
       });
+
+    
+
+
     socket.on("login", (arg) => {
-        console.log("Connected")
-        socket.emit("testevent", "hello")
-        console.log(arg)
+        //console.log("Connected")
+        //socket.emit("testevent", "hello")
+        //console.log(arg)
         findUser(arg.username).then((user) => {
-            console.log("++" + arg.password)
-            console.log("__" + user.password)
+            //console.log("++" + arg.password)
+            //console.log("__" + user.password)
+            if (!user) {
+                socket.emit("loginFailed")
+                return
+            }
             bcrypt.compare(arg.password, user.password, (err, result) => {
                 if (err) throw err
                 
                 if (result) {
                     //send initial DB result
                     Guild.find({}).then((guilds) => {
-                        guilds = guilds.filter((guild) => user.guilds.includes(guild.guild_id))
+                        guilds = guilds.filter((guild) => user.guilds.map(userGuild => userGuild.guild_id).includes(guild.guild_id))
+                        let guildsToSend = []
+                        guilds.forEach((guild) => {
+                            console.log(guild)
+                            console.log("___")
+                            console.log(user)
+                            let categories = []
+                            guild.categories.forEach((category) => {
+                                let categoryObject = category
+                                let channels = category.channels.filter((channel) => user.guilds.find((userGuild) => userGuild.guild_id == guild.guild_id).channels.includes(channel.channel_id))
+                                categoryObject.channels = channels
+                                categories.push(categoryObject)
+                            })
+                            let guildObject = guild
+                            let freeChannels = guild.freeChannels.filter((channel) => user.guilds.find((userGuild) => userGuild.guild_id == guild.guild_id).channels.includes(channel.channel_id))
+                            guildObject.categories = categories
+                            guildObject.freeChannels = freeChannels
+                            guildsToSend.push(guildObject)
+                        })
+                        console.log(guildsToSend)
                     socket.emit("loginSucceeded", guilds)
+                        
                     })
                     //join guild rooms
                     for (guild of user.guilds) {
-
-                        socket.join(guild)
+                        for (channel of guild.channels) {
+                            socket.join(channel)
+                        }
+                        
                     }
                     
                     
@@ -56,6 +86,14 @@ io.on("connection", (socket) => {
                 }
             })
         })
+    })
+
+    socket.on("userMessage", (arg) => {
+        console.log(arg)
+        client.guilds.fetch(arg.guild).then((guild) => {
+            guild.channels.cache.find((channel) => channel.id == arg.channel).send(arg.message.message)
+        })
+        
     })
 })
 
@@ -68,7 +106,7 @@ mongoose.connect(process.env.URI, {useNewUrlParser: true})
 async function findGuilds() {
 
     return Guild.find({}, (err, guild) => {
-        console.log("found")
+        //console.log("found")
         if (err) throw err
         Guild.deleteMany({}, (err) => {
             return guild
@@ -83,13 +121,13 @@ function updateGuilds() {
     const guilds = client.guilds
     let guildObjects = []
     findGuilds().then((dbGuilds) => {
-        console.log(dbGuilds)
+        //console.log(dbGuilds)
 
     guilds.cache.forEach((guild) => {
         let freeChannelObjects = []
         const freeChannels = guild.channels.cache.filter(c => c.type === "text" && !(c.parent))
         freeChannels.forEach(channel => {
-            let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages"}]
+            let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages", authorname: "SYSTEM", time: Date.now(), authoricon: '../../favicon.ico'}]
             let dbGuild = dbGuilds.find(dbGuild => dbGuild.guild_id == guild.id)
             if(dbGuild) {
                 let dbChannel = dbGuild.freeChannels.find(freeChannel => freeChannel.channel_id == channel.id)
@@ -108,8 +146,9 @@ function updateGuilds() {
         categories.forEach(category => {
             let channelObjects = []
             category.children.forEach((channel) => {
-                let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages"}]
+                let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages", authorname: "SYSTEM", time: Date.now(), authoricon: '../../favicon.ico'}]
                 let dbGuild = dbGuilds.find(dbGuild => dbGuild.guild_id == guild.id)
+
                 if(dbGuild) {
                     let dbCategory = dbGuild.categories.find(dbCategory => dbCategory.category_id == category.id)
                     if (dbCategory) {
@@ -119,13 +158,16 @@ function updateGuilds() {
                         }
                     }
                 }
-                console.log("Channel messages")
-                console.log(channelMessages)
+                //console.log("Channel messages")
+                //console.log(channelMessages)
+                if (channel.type == "text") {
                 channelObjects.push({
                     channel_id: channel.id,
                     name: channel.name,
-                    messages: channelMessages
+                    messages: channelMessages,
+                    topic: channel.topic
                 }) 
+                }
             })
             categoryObjects.push({
                 category_id: category.id,
@@ -141,8 +183,8 @@ function updateGuilds() {
             freeChannels: freeChannelObjects,
             icon: guild.iconURL()
         })       
-        console.log(guild.iconURL())
-        console.log(guild.icon)
+        //console.log(guild.iconURL())
+        //console.log(guild.icon)
         
     })
     guildObjects.forEach(guild => {
@@ -164,6 +206,23 @@ client.on("guildCreate", () => {
 client.on("guildDelete", () => {
     updateGuilds()
 })
+client.on("guildMemberAdd", (member) => {
+    User.findOne({user_id: member.id}).then((dbMember) => {
+        if (dbMember) {
+            const userGuildIds = [...client.guilds.cache.filter(guild => guild.members.cache.has(member)).values()].map((guild) => guild.id)
+                let userGuilds = []
+                
+                userGuildIds.forEach((id) => {
+                    userGuilds.push({
+                        guild_id: id,
+                        channels: client.guilds.cache.find((guild) => (guild.id == id)).channels.cache.filter((channel) => channel.type == "text").map((channel) => channel.id)
+                    })
+                })
+            dbMember.guilds = userGuilds
+            dbMember.save()
+        }
+    })
+})
 
 client.on("message", (message) => {
     if (message.content.startsWith("!register")) {
@@ -180,14 +239,23 @@ client.on("message", (message) => {
             if (password == passwordConfirm) {
                 client.guilds.cache.forEach((guild) => {
                     guild.members.fetch()
-                    console.log(guild)
+                    //console.log(guild)
                 })
                 
-                const userGuilds = [...client.guilds.cache.filter(guild => guild.members.cache.has(message.author.id)).values()].map((guild) => guild.id)
-                console.log("User guilds")
-                console.log(userGuilds)
+                const userGuildIds = [...client.guilds.cache.filter(guild => guild.members.cache.has(message.author.id)).values()].map((guild) => guild.id)
+                let userGuilds = []
+                
+                userGuildIds.forEach((id) => {
+                    userGuilds.push({
+                        guild_id: id,
+                        channels: client.guilds.cache.find((guild) => (guild.id == id)).channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(message)); return new Discord.Permissions(channel.permissionsFor(message)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
+                    })
+                })
+                //console.log("User guilds")
+                //console.log(userGuilds)
                 bcrypt.hash(password, 12, (err, hash) => {
-                    console.log(hash)
+                    if (err) throw err;
+                    //console.log(hash)
                     bcrypt.compare(password, hash).then((result)=>{console.log(result)})
                     const userToSave = new User({username: username, password: hash, guilds: userGuilds, user_id: message.author.id})
                     userToSave.save((err) => {if(err) throw err; console.log("Saved")})
@@ -206,18 +274,18 @@ client.on("message", (message) => {
 
     } else {
         if (message.guild) {
-    let mssg = new Message({author: message.author, content: message.content})
-    console.log(mssg)
-    let emitMssg = {...mssg, ...{guild_id: message.guild.id, channel_id: message.channel.id}}
-    console.log(message.channel)
+    let mssg = new Message({author: message.author.id, content: message.content, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now()})
+    //console.log(mssg)
+    let emitMssg = {author: message.author.id, content: message.content, guild_id: message.guild.id, channel_id: message.channel.id}
+    //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
     }
-    io.in(message.guild.id).emit("message", emitMssg)
+    io.in(message.channel.id).emit("message", emitMssg)
     Guild.findOne({guild_id: message.guild.id}, (err, guild) => {
         if (message.channel.parent) {
-            console.log(guild.categories)
-            console.log(message.channel.parentID)
+            //console.log(guild.categories)
+            //console.log(message.channel.parentID)
             let categoryIndex = guild.categories.findIndex((category) => category.category_id == message.channel.parentID)
             let channelIndex = guild.categories[categoryIndex].channels.findIndex((channel) => channel.channel_id == message.channel.id)
             guild.categories[categoryIndex].channels[channelIndex].messages.push(mssg)
