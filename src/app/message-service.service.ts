@@ -45,5 +45,8 @@ export class MessageServiceService {
     })
     return observable
   }
+  sendMessage(message) {
+    this.socket.emit("userMessage", message)
+  }
   
 }

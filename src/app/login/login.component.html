@@ -1,16 +1,16 @@
-<div>
-    <form (ngSubmit)="login()" #loginForm="ngForm">
-    {{diagnostic}}
-    <div class="form-group">
-        <label for = "username">Username</label>
-        <input required [(ngModel)]="model.username" name="username" #username="ngModel" id="username" type="text" class="form-control">
-        <div *ngIf="username.valid">Username is required</div>
-    </div>
-    <div class="form-group">
-        <label for = "password">Password</label>
-        <input required [(ngModel)]="model.password" name="password" #password="ngModel" id="password" type="text" class="form-control">
-        <div *ngIf="password.valid">Password is required</div>
+<form (ngSubmit)="login()" #loginForm="ngForm">
+    <!--{{diagnostic}}-->
+    <div class="formbox">
+        <div class="form-group">
+            <label for = "username">Username</label>
+            <input required [(ngModel)]="model.username" name="username" #username="ngModel" id="username" type="text" class="form-control">
+            <div class="notvalid" *ngIf="username.invalid && (username.dirty || username.touched)">Username is required</div>
+        </div>
+        <div class="form-group">
+            <label for = "password">Password</label>
+            <input required [(ngModel)]="model.password" name="password" #password="ngModel" id="password" type="password" class="form-control" autocomplete="current-password">
+            <div class="notvalid" *ngIf="password.invalid && (password.dirty || password.touched)">Password is required</div>
+        </div>
     </div>
     <button>Submit</button>
-    </form>
-</div> 
+</form>

@@ -6,11 +6,13 @@ import { LoginComponent } from './login/login.component';
 import { MainComponent } from './main/main.component';
 import { MessageServiceService } from './message-service.service';
 import { FormsModule } from '@angular/forms';
+import { MessageComponent } from './message/message.component';
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    MainComponent
+    MainComponent,
+    MessageComponent
   ],
   imports: [
     BrowserModule,

@@ -1,22 +1,54 @@
 <!--{{data.guilds | json}}-->
+<!--{{this.currentCategories | json}}-->
 <div class="container" id="container" [ngClass]="{'open': open}">
     <div class="btn" [ngClass]="{'change': change}" (click)="whenClick()"id="btn">
         <div class="bar1"></div>
         <div class="bar2"></div>
         <div class="bar3"></div>
-    </div>
+    </div> 
 <div class="sidebar">
-        
-<div class="serverlist">.
-            <div *ngFor="let guild of this.data.guilds; index as i; trackBy: trackByGuildId" style="width: 100%;">
-                <img src="{{guild.icon || '../../assets/DefaultServer.png'}}" class="icon" title="{{guild.name}}">
+         
+    <div class="serverlist">
+        <div *ngFor="let guild of this.data.guilds; index as i; trackBy: trackByGuildId" style="width: 100%;" (click) = "guildClick(guild.guild_id)">
+            <img src="{{guild.icon || '../../assets/DefaultServer.png'}}" class="icon" title="{{guild.name}}">
         </div>
-        <div class="channellist"></div>
+    </div>
+    <div class="channellist">
+        <div *ngFor="let category of this.currentCategories; index as i;" class="category">
+            <a>{{category.name}}</a>
+            <div *ngFor="let channel of category.channels; index as i;" class="channel" (click)="channelClick(channel.channel_id, true, category.category_id)">
+                <a>{{channel.name}}</a>
+            </div>
+        </div>
+        <div *ngFor="let channel of this.currentFreeChannels; index as i;" class="freeChannel" (click)="channelClick(channel.channel_id, false)">
+            <a>{{channel.name}}</a>
+        </div>
+    </div>
 </div>
 
-</div>
+
 <div class="main">
-    <div class="header"></div>
-    <div class="messageBox"></div>
-    <div class="formBox"></div>
+    <div class="header">
+        <div *ngIf="this.currentChannel">
+            {{this.currentChannel.topic}}
+        </div>
+        
+    </div>
+    <div class="messageBox">
+        <div *ngIf="this.currentChannel">
+        <div *ngFor="let message of this.currentChannel.messages; index as i;">
+            <app-message [message]=message></app-message>
+        </div>
+        </div>
+    </div>
+    <div class="formBox">
+        <form (ngSubmit)="sendMessage()" #messageForm="ngForm" class="messageForm">
+            <div class="form-group">
+                <input required [(ngModel)]="model.message" name="message" #message="ngModel" id="message" type="text" class="form-control">
+                <div *ngIf="message.valid">Please enter a message</div>
+            </div>
+            <button>Submit</button>
+        </form>
+    </div>
+</div>
 </div>
