@@ -108,9 +108,7 @@ async function findGuilds() {
     return Guild.find({}, (err, guild) => {
         //console.log("found")
         if (err) throw err
-        Guild.deleteMany({}, (err) => {
-            return guild
-        })
+        return guild
         
     })
 }
@@ -158,8 +156,8 @@ function updateGuilds() {
                         }
                     }
                 }
-                //console.log("Channel messages")
-                //console.log(channelMessages)
+                console.log("Channel messages")
+                console.log(channelMessages)
                 if (channel.type == "text") {
                 channelObjects.push({
                     channel_id: channel.id,
@@ -188,8 +186,10 @@ function updateGuilds() {
         
     })
     guildObjects.forEach(guild => {
-        let guildToSave = new Guild(guild)
-        guildToSave.save()
+        Guild.findOne({guild_id: guild.guild_id}, ((err, dbGuild) => {
+            if (err) throw err
+            dbGuild.overwrite({guild})
+        }))
     })
 })
     }
@@ -276,7 +276,7 @@ client.on("message", (message) => {
         if (message.guild) {
     let mssg = new Message({author: message.author.id, content: message.content, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now()})
     //console.log(mssg)
-    let emitMssg = {author: message.author.id, content: message.content, guild_id: message.guild.id, channel_id: message.channel.id}
+    let emitMssg = {author: message.author.id, content: message.content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now()}
     //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
