@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
 form {
     display: flex;
     padding: 20px;
@@ -18,8 +18,8 @@ form {
     position: fixed;
     height: 100%;
     width: 100%;
-    font-family: 'Open Sans', sans-serif;
-    
+    top: 0px;
+    left: 0px;    
 }
 
 label {
@@ -28,10 +28,9 @@ label {
 
 input {
     width: 160px;
+    float: right;
 }
-.form-group {
-    height: 40px;
-}
+
 .notvalid {
     width: 100%;
     background-color: rgb(255, 149, 167);
@@ -68,7 +67,7 @@ input {
     }
     
     input {
-        float: right;
+        display: block;
 
     }
 
