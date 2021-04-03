@@ -3,9 +3,13 @@ img {
     height: 48px;
     width: 48px;
     border-radius: 50%;
+    margin-left: 10px;
+    margin-right: 5px;
+    margin-top: 10px;
 }
 .messageContent {
     float: left;
+    margin-top: 5px;
     min-height: 48px;
     margin-left: 5px;
 }
@@ -18,6 +22,5 @@ img {
     background-color: #52565d;
 }
 :host {
-    margin: 10px;
     background-color: #75767d;
 }

@@ -63,6 +63,16 @@ export class MainComponent implements OnInit {
   trackByGuildId(index: number, guild: any): string {
     return guild._id;
   }
+  trackByChannelId(index: number, channel: any): string {
+    return channel._id;
+  }
+  trackByCategoryId(index: number, category: any): string {
+    return category._id
+  }
+  // TODO: Give something to track by (pass id into both database and socket message)
+  //trackByMessageId(index: number, message: any): string {
+    //return message
+  //}
   open: boolean;
   change: boolean;
   public whenClick() {
