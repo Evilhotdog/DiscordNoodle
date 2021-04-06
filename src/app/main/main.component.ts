@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageServiceService } from "../message-service.service"
 import { UserMessage } from '../user-message';
@@ -35,10 +36,10 @@ export class MainComponent implements OnInit {
       console.log(message)
       console.log(2)
       let guilds = this.data.guilds
-      console.log("----")
-      console.log(guilds)
-      console.log(message)
-      console.log("----")
+      //console.log("----")
+      //console.log(guilds)
+      //console.log(message)
+      //console.log("----")
 
       let guildIndex = guilds.findIndex(guild => guild.guild_id == message.guild_id)
       if (message.category_id){
@@ -47,7 +48,7 @@ export class MainComponent implements OnInit {
         //alert(guilds)
         
         let categoryIndex = guilds[guildIndex].categories.findIndex(category => category.category_id == message.category_id)
-        console.log("***"+categoryIndex)
+        //console.log("***"+categoryIndex)
         let channelIndex = guilds[guildIndex].categories[categoryIndex].channels.findIndex(channel => channel.channel_id == message.channel_id)
         this.data.guilds[guildIndex].categories[categoryIndex].channels[channelIndex].messages.push(message)
       } else {
@@ -55,11 +56,12 @@ export class MainComponent implements OnInit {
         this.data.guilds[guildIndex].freeChannels[channelIndex].messages.push(message)
       }
     })
-    console.log("Constructor finished")
+    //console.log("Constructor finished")
   }
 
   ngOnInit(): void {
   }
+  //trackBy functions
   trackByGuildId(index: number, guild: any): string {
     return guild._id;
   }
@@ -69,12 +71,12 @@ export class MainComponent implements OnInit {
   trackByCategoryId(index: number, category: any): string {
     return category._id
   }
-  // TODO: Give something to track by (pass id into both database and socket message)
-  //trackByMessageId(index: number, message: any): string {
-    //return message
-  //}
+  trackByMessageId(index: number, message: any): string {
+    return message.message_id
+  }
   open: boolean;
   change: boolean;
+  //Calls when button is clicked on mobile. 
   public whenClick() {
     this.open = !this.open;
     
@@ -87,15 +89,18 @@ export class MainComponent implements OnInit {
   public currentCategory = null;
   public guildClick(guild_id: string) {
     this.currentGuild = this.data.guilds.find((guild) => guild.guild_id == guild_id)
-    console.log(this.currentGuild)
+    //console.log(this.currentGuild)
     this.currentCategories = this.currentGuild.categories
     //alert(this.currentCategories)
     this.currentFreeChannels = this.currentGuild.freeChannels
     //alert(this.currentFreeChannels)
   }
   public channelClick(channel_id: string, hasCategory: boolean, category_id: string = "0") {
+    //close sidebar and place button on left hand side (only relevant on mobile)
+    this.open = false
+    this.change = false
     if (hasCategory) {
-      console.log(category_id)
+      //console.log(category_id)
       this.currentCategory = this.currentCategories.find((category) => category.category_id == category_id)
       
       this.currentChannel = this.currentCategory.channels.find((channel) => channel.channel_id == channel_id)
@@ -105,7 +110,11 @@ export class MainComponent implements OnInit {
     }
     //alert(this.currentChannel)
   }
-  public sendMessage() {
+  public sendMessage(form: NgForm) {
+    //sends message and empties message box if user is typing into a channel and the box is not empty. 
+    if (this.model.message && this.currentChannel) {
     this.socketService.sendMessage({message: this.model, channel: this.currentChannel.channel_id, guild: this.currentGuild.guild_id})
+    form.resetForm()
+    }
   }
 }

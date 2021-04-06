@@ -1,15 +1,26 @@
 
 <div class="messageComp">
-<img src="{{message.authoricon}}">
+<img src="{{message.authoricon}}" class="icon">
 <div class="messageContent">
     <span>
         {{message.authorname}}
     </span>
     <span>
-        {{getTime()}}:
+        {{time}}:
     </span>
     <p>
         {{message.content}}
     </p>
 </div>
+</div>
+<br>
+<div *ngIf="this.hasAttachments" class="attachmentBox">
+    <div *ngFor="let attachment of this.message.attachments">
+        <div *ngIf="attachment.mssgType == 'image'">
+            <img src="{{attachment.uri}}" class="imgAttachment">
+        </div>
+        <div *ngIf="attachment.mssgType == 'video'">
+            <video controls src="{{attachment.uri}}" class="videoAttachment"></video>
+        </div>
+    </div>
 </div>

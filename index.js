@@ -13,6 +13,22 @@ const io = require("socket.io")(server, {cors: {
     origins: ["http://localhost:3200"]
 }});
 
+function findFiletype (attachment) {
+    //takes attachment and return filetype as image or video based on Discord CDN URI
+        console.log(attachment)
+        switch (path.extname(attachment.url)) {
+            case ".png":
+            case ".jpg":
+                return "image"
+            case ".mov":
+            case ".mp4":
+                return "video"
+            default:
+                return "unsupported"
+        }
+    
+}
+
 async function findUser(username) {
     return User.findOne({username: username}, (err, user) => {
         if (err) throw err;
@@ -27,7 +43,7 @@ io.on("connection", (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
       });
-
+    let username = ""
     
 
 
@@ -35,7 +51,8 @@ io.on("connection", (socket) => {
         //console.log("Connected")
         //socket.emit("testevent", "hello")
         //console.log(arg)
-        findUser(arg.username).then((user) => {
+        username = arg.username
+        findUser(username).then((user) => {
             //console.log("++" + arg.password)
             //console.log("__" + user.password)
             if (!user) {
@@ -91,7 +108,15 @@ io.on("connection", (socket) => {
     socket.on("userMessage", (arg) => {
         console.log(arg)
         client.guilds.fetch(arg.guild).then((guild) => {
-            guild.channels.cache.find((channel) => channel.id == arg.channel).send(arg.message.message)
+            message = arg.message.message
+            //Sanitize input against whitespace (A bot trying to send a message with only whitespace will crash)
+            messageNoWhitespace = message.replace(" ", "").replace("\n", "")
+            if (messageNoWhitespace) {
+                const MessageEmbed = new Discord.MessageEmbed()
+                .setAuthor(username)
+                .setDescription(message)
+            guild.channels.cache.find((channel) => channel.id == arg.channel).send(MessageEmbed)
+            }
         })
         
     })
@@ -102,6 +127,7 @@ io.on("connection", (socket) => {
 
 const client = new Discord.Client();
 mongoose.connect(process.env.URI, {useNewUrlParser: true})
+
 
 async function findGuilds() {
 
@@ -115,7 +141,7 @@ async function findGuilds() {
 
 
 function updateGuilds() {
-    
+    //Fires every time the bot starts, or joins or leaves a guild
     const guilds = client.guilds
     let guildObjects = []
     findGuilds().then((dbGuilds) => {
@@ -125,7 +151,7 @@ function updateGuilds() {
         let freeChannelObjects = []
         const freeChannels = guild.channels.cache.filter(c => c.type === "text" && !(c.parent))
         freeChannels.forEach(channel => {
-            let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages", authorname: "SYSTEM", time: Date.now(), authoricon: '../../favicon.ico'}]
+            let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages", authorname: "SYSTEM", time: Date.now(), authoricon: '../../favicon.ico', message_id: "001"}]
             let dbGuild = dbGuilds.find(dbGuild => dbGuild.guild_id == guild.id)
             if(dbGuild) {
                 let dbChannel = dbGuild.freeChannels.find(freeChannel => freeChannel.channel_id == channel.id)
@@ -144,7 +170,7 @@ function updateGuilds() {
         categories.forEach(category => {
             let channelObjects = []
             category.children.forEach((channel) => {
-                let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages", authorname: "SYSTEM", time: Date.now(), authoricon: '../../favicon.ico'}]
+                let channelMessages = [{author: "SYSTEM", content: "Welcome to DiscordNoodle! This marks the beginning of where Noodle has recorded messages", authorname: "SYSTEM", time: Date.now(), authoricon: '../../favicon.ico', message_id: "001"}]
                 let dbGuild = dbGuilds.find(dbGuild => dbGuild.guild_id == guild.id)
 
                 if(dbGuild) {
@@ -186,9 +212,15 @@ function updateGuilds() {
         
     })
     guildObjects.forEach(guild => {
+        //Take new, updated guilds and either overwrite existing documents for that guild's ID or create a new one
         Guild.findOne({guild_id: guild.guild_id}, ((err, dbGuild) => {
             if (err) throw err
+            if (dbGuild) {
             dbGuild.overwrite({guild})
+            } else {
+            const guildToSave = new Guild(guild)
+            guildToSave.save()
+            }
         }))
     })
 })
@@ -206,16 +238,20 @@ client.on("guildCreate", () => {
 client.on("guildDelete", () => {
     updateGuilds()
 })
+
 client.on("guildMemberAdd", (member) => {
     User.findOne({user_id: member.id}).then((dbMember) => {
+        //If the user that just joined exists on the database, update the user's allowed guilds and channels to include the new guild access
         if (dbMember) {
-            const userGuildIds = [...client.guilds.cache.filter(guild => guild.members.cache.has(member)).values()].map((guild) => guild.id)
+            console.log(client.guilds.cache)
+            const userGuildIds = [...client.guilds.cache.filter(guild => {guild.members.fetch(); console.log(guild.members.cache); return guild.members.cache.get(member.id)}).values()].map((guild) => guild.id)
+            console.log(userGuildIds + "__")
                 let userGuilds = []
                 
                 userGuildIds.forEach((id) => {
                     userGuilds.push({
                         guild_id: id,
-                        channels: client.guilds.cache.find((guild) => (guild.id == id)).channels.cache.filter((channel) => channel.type == "text").map((channel) => channel.id)
+                        channels: client.guilds.cache.find((guild) => (guild.id == id)).channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(member)); return new Discord.Permissions(channel.permissionsFor(member)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
                     })
                 })
             dbMember.guilds = userGuilds
@@ -224,8 +260,20 @@ client.on("guildMemberAdd", (member) => {
     })
 })
 
+client.on("guildMemberRemove", (member) => {
+    //If the user that just left exists on the database, update the user's allowed guilds to exclude the guild they just left. 
+    User.findOne({user_id: member.id}).then((dbMember) => {
+        if (dbMember) {
+            const newGuilds = dbMember.guilds.filter((guild) => guild.guild_id != member.guild)
+            dbMember.guilds = newGuilds
+            dbMember.save()
+        }
+    })
+})
+
 client.on("message", (message) => {
     if (message.content.startsWith("!register")) {
+        // If the message is a register command
         if (!(message.channel.type == "dm")) {
             message.channel.send("Don't send those in servers!")
             message.delete()
@@ -272,11 +320,19 @@ client.on("message", (message) => {
         
         
 
+    } else if (message.content.startsWith("!help")) {
+        
+    const HelpEmbed = new Discord.MessageEmbed()
+        .setTitle("Help")
+        .setAuthor("DiscordNoodle")
+        .setDescription("Welcome to DiscordNoodle! A Discord bot that allows you to access your Discord server from anywhere! \n \n To get started, please register an account by DMing the bot with a command of the format \"!register [username] [password] [password again]\". \n\n Please make sure this is a DM, and do NOT type this command in a server or group chat, as obviously this is sharing a password in a public setting.  \n\n Afterwards, head on over to our website and put in your credentials you registered with the bot, and you're ready to go!")
+        .setColor(0x99AAB5)
+    message.channel.send(HelpEmbed)
     } else {
         if (message.guild) {
-    let mssg = new Message({author: message.author.id, content: message.content, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now()})
+    let mssg = new Message({author: message.author.id, content: message.content, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
     //console.log(mssg)
-    let emitMssg = {author: message.author.id, content: message.content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now()}
+    let emitMssg = {author: message.author.id, content: message.content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
     //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
@@ -307,8 +363,8 @@ client.login(process.env.BOT_TOKEN)
 
  
 app.use(express.static(__dirname + "/dist/DiscordNoodle"))
-app.get("/*", (req, res) => res.sendFile(path.join(__dirname)))
-
+app.get("/", (req, res) => {res.sendFile(path.join(__dirname))})
+app.get("*", (req, res) => {res.redirect("/")})
 
 
 

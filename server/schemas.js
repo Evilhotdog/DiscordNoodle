@@ -38,7 +38,8 @@ const channelSchema = new Schema({
     name: String,
     messages: [MessageSchema],
     channel_id: String,
-    topic: String
+    topic: String,
+    message_id: String
 })
 const Channel = mongoose.model("Channel", channelSchema)
 const guildSchema = new Schema({
