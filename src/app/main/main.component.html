@@ -15,7 +15,7 @@
     </div>
     <div class="channellist">
         <div *ngFor="let category of this.currentCategories; index as i; trackBy: trackByCategoryId" class="category">
-            <a>{{category.name}}</a>
+            <a class="categorylink">{{category.name}}</a>
             <div *ngFor="let channel of category.channels; index as i; trackBy: trackByChannelId" class="channel" (click)="channelClick(channel.channel_id, true, category.category_id)">
                 <a>{{channel.name}}</a>
             </div>
@@ -36,7 +36,7 @@
     </div>
     <div class="messageBox">
         <div class="ifChannel" *ngIf="this.currentChannel">
-        <div *ngFor="let message of this.currentChannel.messages; index as i; trackBy: trackByMessageId">
+        <div *ngFor="let message of this.currentChannel.messages; index as i; trackBy: trackByMessageId"  class="app-message">
             <app-message [message]=message></app-message>
         </div>
         </div>

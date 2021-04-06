@@ -1,12 +1,32 @@
 .channel {
-	margin-left: 50px;
-	height: 1.2em;
+	height: fit-content;
 }
 .category, .channel, .freeChannel {
 	cursor: pointer;
 }
+.app-message {
+	background-color: #72767d;
+}
+.app-message:hover {
+	background-color: #52565d;
+}
+.channel:hover, .freeChannel:hover, .categorylink:hover {
+	background-color: #52565d;
+}
+.categorylink {
+	width: 100%;
+	display: block;
 
-
+}
+.channel a {
+	margin-left: 50px;
+}
+.freeChannel a {
+	margin-left: 5px;
+}
+.categorylink {
+	padding-left: 5px;
+}
 .messageBox {
 	background-color: #75767d;
 	width: 100%;
@@ -18,19 +38,30 @@
 	top: 0;
 	margin-top: 60px;
 }
-
+.messageBox::-webkit-scrollbar {
+	width: 12px;
+}
+.messageBox::-webkit-scrollbar-track {
+	background: #23272A;
+}
+.messageBox::-webkit-scrollbar-thumb {
+	background-color: #7289DA;
+	border-radius: 20px;
+	border: 3px solid #23272A;
+}
 
 .channellist {
 	width: 100%;
-	overflow: auto;
+	overflow-y: auto;
+	overflow-x: hidden;
 	background-color: gray;
-	margin-left: 5px;
 }
 .formBox {
 	width: 100%;
-	background-color: #75767d;
+	background-color: #23272A;
 	position: absolute;
 	bottom: 0px;
+	height: 60px;
 }
 .messageForm {
 	display: flex;
@@ -45,7 +76,7 @@
 	width: 90%;
 	height: 30px;
 	border-radius: 3px;
-	background-color: #333;
+	background-color: #7289DA;
 	display: block;
 	margin: 0 auto;
 }
@@ -59,7 +90,7 @@
 	display: block;
 	height: 60px;
 	background: rgb(35,39,42);
-	background: linear-gradient(138deg, rgba(35,39,42,1) 0%, rgba(114,137,218,1) 100%);
+	background: linear-gradient(138deg, #7289DA 0%, #23272A 100%);
 	border-color: #000;
 }
 .container {
