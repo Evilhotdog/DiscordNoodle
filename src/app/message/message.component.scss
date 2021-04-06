@@ -18,20 +18,16 @@
     margin-left: 5px;
 }
 .messageComp {
-	background-color: #72767d;
 	width: 100%;
 	display: flex;
 }
-.messageComp:hover {
-    background-color: #52565d;
-}
-:host {
-    background-color: #75767d;
-}
+
+
 
 .imgAttachment, .videoAttachment {
     max-width: 80%;
     height: auto;
     margin-left: 20px;
     border-radius: 6px;
+    margin-bottom: 10px;
 }
