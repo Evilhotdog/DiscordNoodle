@@ -281,9 +281,15 @@ client.on("message", (message) => {
         }
         const args = message.content.trim().split(' ');
         if (args.length === 4) {
+            
             const username = args[1]
             const password = args[2]
             const passwordConfirm = args[3]
+            User.findOne({username: args[1]}).then((user) => {
+                if (user) {
+                    message.channel.send("This user already exists!")
+                    return
+                }
             if (password == passwordConfirm) {
                 client.guilds.cache.forEach((guild) => {
                     guild.members.fetch()
@@ -312,6 +318,7 @@ client.on("message", (message) => {
                 message.channel.send("The password and password confirmation did not match!")
                 return
             }
+        })
         } else if (args.length < 4 ) {
             message.channel.send("You didn't provide enough arguments!")
         } else {
