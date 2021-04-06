@@ -1,4 +1,4 @@
-img {
+.icon {
     float: left;
     height: 48px;
     width: 48px;
@@ -6,6 +6,10 @@ img {
     margin-left: 10px;
     margin-right: 5px;
     margin-top: 10px;
+}
+.attachmentBox {
+    display: flex;
+    flex-direction: column;
 }
 .messageContent {
     float: left;
@@ -23,4 +27,11 @@ img {
 }
 :host {
     background-color: #75767d;
+}
+
+.imgAttachment, .videoAttachment {
+    max-width: 80%;
+    height: auto;
+    margin-left: 20px;
+    border-radius: 6px;
 }

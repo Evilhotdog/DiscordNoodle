@@ -9,6 +9,7 @@ export class MessageServiceService {
   constructor() { }
   socket;
   setupSocketConnection() {
+    //create socket.io connection from origin URL
     console.log("--connecting--")
     this.socket = io()
   }

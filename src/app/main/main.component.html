@@ -36,18 +36,16 @@
     </div>
     <div class="messageBox">
         <div class="ifChannel" *ngIf="this.currentChannel">
-        <div *ngFor="let message of this.currentChannel.messages; index as i;">
+        <div *ngFor="let message of this.currentChannel.messages; index as i; trackBy: trackByMessageId">
             <app-message [message]=message></app-message>
         </div>
         </div>
     </div>
     <div class="formBox">
-        <form (ngSubmit)="sendMessage()" #messageForm="ngForm" class="messageForm">
-            <div class="form-group">
-                <input required [(ngModel)]="model.message" name="message" #message="ngModel" id="message" type="text" class="form-control">
-                <div *ngIf="message.valid">Please enter a message</div>
+        <form (ngSubmit)="sendMessage(messageForm)" #messageForm="ngForm" class="messageForm">
+            <div class="form-group formgroupbox">
+                <input required [(ngModel)]="model.message" name="message" #message="ngModel" id="message" type="text" class="form-control forminputbox" autocomplete="off">
             </div>
-            <button>Submit</button>
         </form>
     </div>
 </div>

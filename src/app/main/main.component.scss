@@ -9,8 +9,14 @@
 
 .messageBox {
 	background-color: #75767d;
-	overflow: auto;
-	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	position: absolute;
+	bottom: 0;
+	margin-bottom: 60px;
+	top: 0;
+	margin-top: 60px;
 }
 
 
@@ -35,7 +41,18 @@
 	margin-bottom: 10px;
 }
 
+.forminputbox {
+	width: 90%;
+	height: 30px;
+	border-radius: 3px;
+	background-color: #333;
+	display: block;
+	margin: 0 auto;
+}
 
+.formgroupbox {
+	width: 100%;
+}
 
 
 .header {
