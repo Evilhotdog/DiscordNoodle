@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
         console.log('User Disconnected');
       });
     let username = ""
-    
+    let id = ""
 
 
     socket.on("login", (arg) => {
@@ -60,6 +60,7 @@ io.on("connection", (socket) => {
                 socket.emit("loginFailed")
                 return
             }
+            id = user.user_id
             bcrypt.compare(arg.password, user.password, (err, result) => {
                 if (err) throw err
                 
@@ -114,14 +115,15 @@ io.on("connection", (socket) => {
             message = arg.message.message
             //Sanitize input against whitespace (A bot trying to send a message with only whitespace will crash)
             messageNoWhitespace = message.replace(" ", "").replace("\n", "")
-            if (messageNoWhitespace) {
+            const channel = guild.channels.cache.find((channel) => channel.id == arg.channel)
+            if (messageNoWhitespace && guild.member(id).permissionsIn(channel).has('SEND_MESSAGES')) {
                 const MessageEmbed = new Discord.MessageEmbed()
                 .setAuthor(username)
                 .setDescription(message)
                 if (arg.message.attachment) {
                     MessageEmbed.attachFiles([arg.message.attachment])
                 }
-            guild.channels.cache.find((channel) => channel.id == arg.channel).send(MessageEmbed)
+            channel.send(MessageEmbed)
             }
         })
         
@@ -171,6 +173,7 @@ function updateGuilds() {
                 messages: channelMessages
             }) 
         })
+        console.log(freeChannelObjects)
         const categories = guild.channels.cache.filter(c => c.type === "category")
         let categoryObjects = []
         categories.forEach(category => {
@@ -221,8 +224,10 @@ function updateGuilds() {
         //Take new, updated guilds and either overwrite existing documents for that guild's ID or create a new one
         Guild.findOne({guild_id: guild.guild_id}, ((err, dbGuild) => {
             if (err) throw err
+            console.log(guild)
             if (dbGuild) {
-            dbGuild.overwrite({guild})
+            dbGuild.overwrite(guild)
+            dbGuild.save()
             } else {
             const guildToSave = new Guild(guild)
             guildToSave.save()
@@ -282,24 +287,25 @@ function permissionsUpdate(guild_id) {
     User.find({}).then((users, err) => {
         if (err) throw err
         for (const user of users) {
-            User.findOne({user_id: user.user_id}).then((user, err) => {
+            User.findOne({username: user.username}).then((dbUser, err) => {
                 if (err) {console.log(err); throw err}
-                if (user) {
+                if (dbUser) {
                     client.guilds.fetch(guild_id).then((guild) => {
-                        const guildUser = guild.member(user.user_id)
+                        const guildUser = guild.member(dbUser.user_id)
                             
                             if (!guildUser) {
                                 return
                             }
                             //console.log(guildUser)
-                            let guilds = user.guilds
+                            let guilds = dbUser.guilds
                             let guildIndex = guilds.findIndex((guild) => guild.guild_id == guild_id)
                             let channels = guilds[guildIndex].channels
                             channels = guild.channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(guildUser)); return new Discord.Permissions(channel.permissionsFor(guildUser)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
                             
-                            //console.log(channels)
-                            user.guilds[guildIndex].channels = channels
-                            user.save()
+                            console.log(channels)
+                            dbUser.guilds[guildIndex].channels = channels
+                            console.log(dbUser)
+                            dbUser.save()
                         
                     })
                     
