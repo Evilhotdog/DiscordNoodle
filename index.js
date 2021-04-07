@@ -132,7 +132,7 @@ io.on("connection", (socket) => {
 
 
 const client = new Discord.Client();
-mongoose.connect(process.env.URI, {useNewUrlParser: true})
+mongoose.connect(process.env.URI, {useNewUrlParser: true, useUnifiedTopology: true})
 
 
 async function findGuilds() {
