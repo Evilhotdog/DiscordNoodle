@@ -14,8 +14,8 @@
         </div>
     </div>
     <div class="channellist">
-        <div *ngFor="let category of this.currentCategories; index as i; trackBy: trackByCategoryId" class="category">
-            <a class="categorylink">{{category.name}}</a>
+        <div *ngFor="let category of this.currentCategories; index as i; trackBy: trackByCategoryId" class="category" id="{{category.category_id}}">
+            <a class="categorylink" (click)="categoryClick(category.category_id)" >{{category.name}}</a>
             <div *ngFor="let channel of category.channels; index as i; trackBy: trackByChannelId" class="channel" (click)="channelClick(channel.channel_id, true, category.category_id)">
                 <a>{{channel.name}}</a>
             </div>
