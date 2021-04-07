@@ -118,6 +118,9 @@ io.on("connection", (socket) => {
                 const MessageEmbed = new Discord.MessageEmbed()
                 .setAuthor(username)
                 .setDescription(message)
+                if (arg.message.attachment) {
+                    MessageEmbed.attachFiles([arg.message.attachment])
+                }
             guild.channels.cache.find((channel) => channel.id == arg.channel).send(MessageEmbed)
             }
         })

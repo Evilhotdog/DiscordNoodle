@@ -14,7 +14,7 @@ import { UserMessage } from '../user-message';
 export class MainComponent implements OnInit {
   userMessageContent: String
   userMessageAttachments
-  model = new UserMessage("", [])
+  model = new UserMessage("", null)
   toScroll: boolean = false
 
   btn: Element = document.getElementById("btn")
@@ -123,11 +123,36 @@ export class MainComponent implements OnInit {
     }
     //alert(this.currentChannel)
   }
-  
+  file
+  bytes = null
+  public fileChange(event) {
+    this.file = event.target.files[0];
+    
+  }
   public sendMessage(form: NgForm) {
+    let bytes = this.bytes
+    let message = this.model.message
     //sends message and empties message box if user is typing into a channel and the box is not empty. 
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      bytes = new Uint8Array(<ArrayBuffer>reader.result);
+      console.log(bytes)
+      console.log(this.model.message)
+      this.socketMessage(message, bytes)
+      this.bytes = null
+      this.file = null
+      console.log(22)
+    }
+    console.log(typeof this.file)
+    
     if (this.model.message && this.currentChannel) {
-    this.socketService.sendMessage({message: this.model, channel: this.currentChannel.channel_id, guild: this.currentGuild.guild_id})
+      console.log("Message")
+      console.log(this.model.message)
+      if (this.file) {
+      reader.readAsArrayBuffer(this.file)
+      } else {
+        this.socketMessage(this.model.message, null)
+      }
     form.resetForm()
     this.toScroll = true
     }
@@ -137,5 +162,7 @@ export class MainComponent implements OnInit {
     messageBox.scrollTop = messageBox.scrollHeight
     
   }
-
+  public socketMessage(message, bytes) {
+    this.socketService.sendMessage({message: {message: message, attachment: bytes}, channel: this.currentChannel.channel_id, guild: this.currentGuild.guild_id})
+  }
 }
