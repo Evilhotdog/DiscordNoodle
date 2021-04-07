@@ -363,11 +363,14 @@ client.on("message", (message) => {
     } else {
         if (message.guild) {
     const content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
+    const contentincludingembeds = message.embeds[0].description? message.embeds[0].description : content
     const authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
-    const sanitizedauthorname = authorname.replace(">", "&gt").replace("<", "&lt")
-    let mssg = new Message({author: message.author.id, content: content, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
-    //console.log(mssg)
-    let emitMssg = {author: message.author.id, content: content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
+    const authornameincludingembeds = message.embeds[0].author? message.embeds[0].author.name  : authorname
+    const sanitizedauthorname = authornameincludingembeds.replace(">", "&gt").replace("<", "&lt")
+    let mssg = new Message({author: message.author.id, content: contentincludingembeds, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
+    console.log(mssg)
+    let emitMssg = {author: message.author.id, content: contentincludingembeds, guild_id: message.guild.id, channel_id: message.channel.id, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
+    console.log(emitMssg)
     //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}

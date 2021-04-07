@@ -34,7 +34,7 @@
         </div>
         
     </div>
-    <div class="messageBox">
+    <div class="messageBox" id="messageBox">
         <div class="ifChannel" *ngIf="this.currentChannel">
         <div *ngFor="let message of this.currentChannel.messages; index as i; trackBy: trackByMessageId"  class="app-message">
             <app-message [message]=message></app-message>
