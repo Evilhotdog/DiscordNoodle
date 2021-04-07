@@ -6,6 +6,7 @@ const http = require("http");
 const bcrypt = require("bcrypt")
 const mongoose = require('mongoose');
 const {User, Attachment, Message, Channel, Guild } = require("./server/schemas.js");
+const e = require("express");
 //const { servicesVersion } = require("typescript");
 const app = express()
 const server = http.createServer(app)
@@ -61,6 +62,7 @@ io.on("connection", (socket) => {
                 return
             }
             id = user.user_id
+            console.log("||  " + id)
             bcrypt.compare(arg.password, user.password, (err, result) => {
                 if (err) throw err
                 
@@ -107,21 +109,29 @@ io.on("connection", (socket) => {
                 }
             })
         })
-    })
+    }                                                                                   )
 
     socket.on("userMessage", (arg) => {
         console.log(arg)
         client.guilds.fetch(arg.guild).then((guild) => {
+            if (!guild) {console.log("No guild")}
             message = arg.message.message
             //Sanitize input against whitespace (A bot trying to send a message with only whitespace will crash)
             messageNoWhitespace = message.replace(" ", "").replace("\n", "")
             const channel = guild.channels.cache.find((channel) => channel.id == arg.channel)
+            console.log("_+++_")
+            console.log(guild)
+            console.log(id)
+            console.log("_+++_")
             if (messageNoWhitespace && guild.member(id).permissionsIn(channel).has('SEND_MESSAGES')) {
                 const MessageEmbed = new Discord.MessageEmbed()
                 .setAuthor(username)
                 .setDescription(message)
                 if (arg.message.attachment) {
+                    console.log(arg.message.attachment)
                     MessageEmbed.attachFiles([arg.message.attachment])
+                } else {
+                    console.log("No attachment")
                 }
             channel.send(MessageEmbed)
             }
