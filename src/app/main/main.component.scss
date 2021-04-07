@@ -108,10 +108,11 @@
 	width: 100%;
 	left: 0px;
 	top: 0px;
+	height: 100%;
 }
 .main {
 	position: relative;
-	height: 100vh;
+	height: 100%;
 	width: 100%;
 	background-color: #72767d;
 }
@@ -130,7 +131,7 @@
 }
 .sidebar {
 	display: flex;
-	height: 100vh;
+	height: 100%;
 	position: fixed;
 	z-index: 1;
 	top: 0;
