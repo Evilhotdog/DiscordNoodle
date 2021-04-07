@@ -149,7 +149,11 @@ export class MainComponent implements OnInit {
       console.log("Message")
       console.log(this.model.message)
       if (this.file) {
+        if (this.file.size <= 900000) {
       reader.readAsArrayBuffer(this.file)
+        } else {
+          alert("File too big!")
+        }
       } else {
         this.socketMessage(this.model.message, null)
       }
