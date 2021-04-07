@@ -46,6 +46,10 @@
             <div class="form-group formgroupbox">
                 <input required [(ngModel)]="model.message" name="message" #message="ngModel" id="message" type="text" class="form-control forminputbox" autocomplete="off">
             </div>
+            <div class="form-group fileinput">
+                <input [(ngModel)]="model.attachment" name="file" #file="ngModel" id="file" type="file" class="form-control fileinput" (change)="fileChange($event)">
+            </div>
+            <input type="submit" style="height: 1px; width: 1px;">
         </form>
     </div>
 </div>
