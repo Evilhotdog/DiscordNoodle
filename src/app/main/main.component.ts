@@ -15,10 +15,11 @@ export class MainComponent implements OnInit {
   userMessageContent: String
   userMessageAttachments
   model = new UserMessage("", [])
-
+  toScroll: boolean = false
 
   btn: Element = document.getElementById("btn")
   container: Element = document.getElementById("container")
+  
   data: any = {};
   routeState: any
   constructor(private socketService: MessageServiceService, private router: Router) {
@@ -36,6 +37,7 @@ export class MainComponent implements OnInit {
       console.log(message)
       console.log(2)
       let guilds = this.data.guilds
+      
       //console.log("----")
       //console.log(guilds)
       //console.log(message)
@@ -55,7 +57,12 @@ export class MainComponent implements OnInit {
         let channelIndex = guilds[guildIndex].freeChannels.findIndex(channel => channel.channel_id == message.channel_id)
         this.data.guilds[guildIndex].freeChannels[channelIndex].messages.push(message)
       }
+      if (this.toScroll) {
+        setTimeout(this.scrollToBottom, 200)
+        this.toScroll = false
+      }
     })
+    
     //console.log("Constructor finished")
   }
 
@@ -116,11 +123,19 @@ export class MainComponent implements OnInit {
     }
     //alert(this.currentChannel)
   }
+  
   public sendMessage(form: NgForm) {
     //sends message and empties message box if user is typing into a channel and the box is not empty. 
     if (this.model.message && this.currentChannel) {
     this.socketService.sendMessage({message: this.model, channel: this.currentChannel.channel_id, guild: this.currentGuild.guild_id})
     form.resetForm()
+    this.toScroll = true
     }
   }
+  public scrollToBottom() {
+    let messageBox: Element = document.getElementById("messageBox")
+    messageBox.scrollTop = messageBox.scrollHeight
+    
+  }
+
 }
