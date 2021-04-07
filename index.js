@@ -56,6 +56,7 @@ io.on("connection", (socket) => {
             //console.log("++" + arg.password)
             //console.log("__" + user.password)
             if (!user) {
+                console.log("No User")
                 socket.emit("loginFailed")
                 return
             }
@@ -85,6 +86,7 @@ io.on("connection", (socket) => {
                             guildsToSend.push(guildObject)
                         })
                         console.log(guildsToSend)
+                        console.log("Login Succeeded")
                     socket.emit("loginSucceeded", guilds)
                         
                     })
@@ -99,6 +101,7 @@ io.on("connection", (socket) => {
                     
 
                 } else {
+                    console.log("Login Failed")
                     socket.emit("loginFailed")
                 }
             })
