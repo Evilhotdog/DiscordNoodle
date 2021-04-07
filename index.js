@@ -15,7 +15,7 @@ const io = require("socket.io")(server, {cors: {
 
 function findFiletype (attachment) {
     //takes attachment and return filetype as image or video based on Discord CDN URI
-        console.log(attachment)
+        //console.log(attachment)
         switch (path.extname(attachment.url)) {
             case ".png":
             case ".jpg":
@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
     console.log("Connected")
     socket.emit("testevent", "hello")
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log('User Disconnected');
       });
     let username = ""
     
@@ -69,9 +69,9 @@ io.on("connection", (socket) => {
                         guilds = guilds.filter((guild) => user.guilds.map(userGuild => userGuild.guild_id).includes(guild.guild_id))
                         let guildsToSend = []
                         guilds.forEach((guild) => {
-                            console.log(guild)
-                            console.log("___")
-                            console.log(user)
+                            //console.log(guild)
+                            //console.log("___")
+                            //console.log(user)
                             let categories = []
                             guild.categories.forEach((category) => {
                                 let categoryObject = category
@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
                             guildObject.freeChannels = freeChannels
                             guildsToSend.push(guildObject)
                         })
-                        console.log(guildsToSend)
+                        //console.log(guildsToSend)
                         console.log("Login Succeeded")
                     socket.emit("loginSucceeded", guilds)
                         
@@ -185,8 +185,8 @@ function updateGuilds() {
                         }
                     }
                 }
-                console.log("Channel messages")
-                console.log(channelMessages)
+                //console.log("Channel messages")
+                //console.log(channelMessages)
                 if (channel.type == "text") {
                 channelObjects.push({
                     channel_id: channel.id,
@@ -246,7 +246,7 @@ client.on("guildMemberAdd", (member) => {
     User.findOne({user_id: member.id}).then((dbMember) => {
         //If the user that just joined exists on the database, update the user's allowed guilds and channels to include the new guild access
         if (dbMember) {
-            console.log(client.guilds.cache)
+            //console.log(client.guilds.cache)
             const userGuildIds = [...client.guilds.cache.filter(guild => {guild.members.fetch(); console.log(guild.members.cache); return guild.members.cache.get(member.id)}).values()].map((guild) => guild.id)
             console.log(userGuildIds + "__")
                 let userGuilds = []
@@ -276,16 +276,28 @@ client.on("guildMemberRemove", (member) => {
 
 
 function permissionsUpdate(guild_id) {
-    User.find({}).then((err, users) => {
+    User.find({}).then((users, err) => {
         if (err) throw err
         for (const user of users) {
-            User.find({user_id: user.user_id}).then((err, user) => {
-                if (err) throw err
+            User.findOne({user_id: user.user_id}).then((user, err) => {
+                if (err) {console.log(err); throw err}
                 if (user) {
                     client.guilds.fetch(guild_id).then((guild) => {
-                        guild.members.fetch(user.user_id).then((guildUser) => {
-
-                        })
+                        const guildUser = guild.member(user.user_id)
+                            
+                            if (!guildUser) {
+                                return
+                            }
+                            //console.log(guildUser)
+                            let guilds = user.guilds
+                            let guildIndex = guilds.findIndex((guild) => guild.guild_id == guild_id)
+                            let channels = guilds[guildIndex].channels
+                            channels = guild.channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(guildUser)); return new Discord.Permissions(channel.permissionsFor(guildUser)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
+                            
+                            //console.log(channels)
+                            user.guilds[guildIndex].channels = channels
+                            user.save()
+                        
                     })
                     
                 }
@@ -359,18 +371,16 @@ client.on("message", (message) => {
         .setColor(0x99AAB5)
     message.channel.send(HelpEmbed)
     } else if (message.content.startsWith("!update")) {
-
+        permissionsUpdate(message.guild.id)
     } else {
         if (message.guild) {
     const content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
-    const contentincludingembeds = message.embeds[0].description? message.embeds[0].description : content
+    const contentincludingembeds = message.embeds.length? message.embeds[0].description : content
     const authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
-    const authornameincludingembeds = message.embeds[0].author? message.embeds[0].author.name  : authorname
+    const authornameincludingembeds = message.embeds.length? message.embeds[0].author.name  : authorname
     const sanitizedauthorname = authornameincludingembeds.replace(">", "&gt").replace("<", "&lt")
     let mssg = new Message({author: message.author.id, content: contentincludingembeds, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
-    console.log(mssg)
     let emitMssg = {author: message.author.id, content: contentincludingembeds, guild_id: message.guild.id, channel_id: message.channel.id, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
-    console.log(emitMssg)
     //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
