@@ -81,6 +81,15 @@
 	margin: 0 auto;
 }
 
+.collapsed div, .collapsed div a {
+	height: 0;
+}
+.channel a {
+	display: inline-block;
+	overflow: hidden;
+	transition: height 0.3s ease;
+}
+
 .formgroupbox {
 	width: 100%;
 }
@@ -133,7 +142,7 @@
 .serverlist {
 	min-width: 60px;
 	max-width: 60px;
-	background-color: black;
+	background-color: #23272A;
 	overflow: auto
 }
 @media screen and (min-width: 675px) {

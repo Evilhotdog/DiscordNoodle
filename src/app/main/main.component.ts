@@ -95,6 +95,12 @@ export class MainComponent implements OnInit {
     this.currentFreeChannels = this.currentGuild.freeChannels
     //alert(this.currentFreeChannels)
   }
+
+  public categoryClick(category_id: string) {
+    const category = document.getElementById(category_id)
+    category.classList.toggle("collapsed") 
+  }
+
   public channelClick(channel_id: string, hasCategory: boolean, category_id: string = "0") {
     //close sidebar and place button on left hand side (only relevant on mobile)
     this.open = false

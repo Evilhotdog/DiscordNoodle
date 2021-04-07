@@ -271,6 +271,26 @@ client.on("guildMemberRemove", (member) => {
     })
 })
 
+
+function permissionsUpdate(guild_id) {
+    User.find({}).then((err, users) => {
+        if (err) throw err
+        for (const user of users) {
+            User.find({user_id: user.user_id}).then((err, user) => {
+                if (err) throw err
+                if (user) {
+                    client.guilds.fetch(guild_id).then((guild) => {
+                        guild.members.fetch(user.user_id).then((guildUser) => {
+
+                        })
+                    })
+                    
+                }
+            })
+        }
+    })
+}
+
 client.on("message", (message) => {
     if (message.content.startsWith("!register")) {
         // If the message is a register command
@@ -332,14 +352,19 @@ client.on("message", (message) => {
     const HelpEmbed = new Discord.MessageEmbed()
         .setTitle("Help")
         .setAuthor("DiscordNoodle")
-        .setDescription("Welcome to DiscordNoodle! A Discord bot that allows you to access your Discord server from anywhere! \n \n To get started, please register an account by DMing the bot with a command of the format \"!register [username] [password] [password again]\". \n\n Please make sure this is a DM, and do NOT type this command in a server or group chat, as obviously this is sharing a password in a public setting.  \n\n Afterwards, head on over to our website and put in your credentials you registered with the bot, and you're ready to go!")
+        .setDescription("Welcome to DiscordNoodle! A Discord bot that allows you to access your Discord server from anywhere! \n \n To get started, please register an account by DMing the bot with a command of the format \"!register [username] [password] [password again]\". \n\n Please make sure this is a DM, and do NOT type this command in a server or group chat, as obviously this is sharing a password in a public setting.  \n\n Afterwards, head on over to our website and put in your credentials you registered with the bot, and you're ready to go! \n\n You can use the command !update to update the bot's understanding of user permissions after guild permissions are changed" )
         .setColor(0x99AAB5)
     message.channel.send(HelpEmbed)
+    } else if (message.content.startsWith("!update")) {
+
     } else {
         if (message.guild) {
-    let mssg = new Message({author: message.author.id, content: message.content, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
+    const content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
+    const authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
+    const sanitizedauthorname = authorname.replace(">", "&gt").replace("<", "&lt")
+    let mssg = new Message({author: message.author.id, content: content, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
     //console.log(mssg)
-    let emitMssg = {author: message.author.id, content: message.content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
+    let emitMssg = {author: message.author.id, content: content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
     //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
