@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
                 return
             }
             id = user.user_id
-            console.log("||  " + id)
+            //console.log("||  " + id)
             bcrypt.compare(arg.password, user.password, (err, result) => {
                 if (err) throw err
                 
@@ -112,23 +112,23 @@ io.on("connection", (socket) => {
     }                                                                                   )
 
     socket.on("userMessage", (arg) => {
-        console.log(arg)
+        //console.log(arg)
         client.guilds.fetch(arg.guild).then((guild) => {
             if (!guild) {console.log("No guild")}
             message = arg.message.message
             //Sanitize input against whitespace (A bot trying to send a message with only whitespace will crash)
             messageNoWhitespace = message.replace(" ", "").replace("\n", "")
             const channel = guild.channels.cache.find((channel) => channel.id == arg.channel)
-            console.log("_+++_")
-            console.log(guild)
-            console.log(id)
-            console.log("_+++_")
+            //console.log("_+++_")
+            //console.log(guild)
+            //console.log(id)
+            //console.log("_+++_")
             if (messageNoWhitespace && guild.member(id).permissionsIn(channel).has('SEND_MESSAGES')) {
                 const MessageEmbed = new Discord.MessageEmbed()
                 .setAuthor(username)
                 .setDescription(message)
                 if (arg.message.attachment) {
-                    console.log(arg.message.attachment)
+                    //console.log(arg.message.attachment)
                     MessageEmbed.attachFiles([arg.message.attachment])
                 } else {
                     console.log("No attachment")
@@ -183,7 +183,7 @@ function updateGuilds() {
                 messages: channelMessages
             }) 
         })
-        console.log(freeChannelObjects)
+        //console.log(freeChannelObjects)
         const categories = guild.channels.cache.filter(c => c.type === "category")
         let categoryObjects = []
         categories.forEach(category => {
@@ -234,7 +234,7 @@ function updateGuilds() {
         //Take new, updated guilds and either overwrite existing documents for that guild's ID or create a new one
         Guild.findOne({guild_id: guild.guild_id}, ((err, dbGuild) => {
             if (err) throw err
-            console.log(guild)
+            //console.log(guild)
             if (dbGuild) {
             dbGuild.overwrite(guild)
             dbGuild.save()
@@ -313,7 +313,7 @@ function permissionsUpdate(guild_id) {
                             let channels = guilds[guildIndex].channels
                             channels = guild.channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(guildUser)); return new Discord.Permissions(channel.permissionsFor(guildUser)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
                             
-                            console.log(channels)
+                            //console.log(channels)
                             dbUser.guilds[guildIndex].channels = channels
                             } else {
                                 guilds.push({
@@ -322,7 +322,7 @@ function permissionsUpdate(guild_id) {
                                 })
                             }
                             dbUser.guilds = guilds
-                            console.log(dbUser)
+                            //console.log(dbUser)
                             dbUser.save()
                         
                     })
