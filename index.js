@@ -409,14 +409,17 @@ client.on("message", (message) => {
         permissionsUpdate(message.guild.id)
     } else {
         if (message.guild) {
-            console.log(message.embeds)
+            
     const content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
-    const contentincludingembeds = message.embeds.length? message.embeds[0].description : content
     const authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
-    const authornameincludingembeds = message.embeds.length? message.embeds[0].author.name  : authorname
-    const sanitizedauthorname = authornameincludingembeds.replace(">", "&gt").replace("<", "&lt")
-    let mssg = new Message({author: message.author.id, content: contentincludingembeds, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
-    let emitMssg = {author: message.author.id, content: contentincludingembeds, guild_id: message.guild.id, channel_id: message.channel.id, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
+    if (message.embeds.length && message.author.id == "819988610811560017") {
+    content = message.embeds.length? message.embeds[0].description : content
+    
+    authorname = message.embeds.length? message.embeds[0].author.name  : authorname
+    }
+    const sanitizedauthorname = authorname.replace(">", "&gt").replace("<", "&lt")
+    let mssg = new Message({author: message.author.id, content: content, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})})
+    let emitMssg = {author: message.author.id, content: content, guild_id: message.guild.id, channel_id: message.channel.id, authorname: sanitizedauthorname, authoricon: message.author.displayAvatarURL(), time: Date.now(), message_id: message.id, attachments: message.attachments.map((attachment) => {return {name: path.basename(attachment.url), uri: attachment.url, mssgType: findFiletype(attachment)}})}
     //console.log(message.channel)
     if (message.channel.parent) {
         emitMssg = {...emitMssg, ...{category_id: message.channel.parentID}}
