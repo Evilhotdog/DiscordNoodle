@@ -309,11 +309,19 @@ function permissionsUpdate(guild_id) {
                             //console.log(guildUser)
                             let guilds = dbUser.guilds
                             let guildIndex = guilds.findIndex((guild) => guild.guild_id == guild_id)
+                            if (guilds[guildIndex]) {
                             let channels = guilds[guildIndex].channels
                             channels = guild.channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(guildUser)); return new Discord.Permissions(channel.permissionsFor(guildUser)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
                             
                             console.log(channels)
                             dbUser.guilds[guildIndex].channels = channels
+                            } else {
+                                guilds.push({
+                                    guild_id: guild.id,
+                                    channels: guild.channels.cache.filter((channel) => channel.type == "text").filter(channel => {console.log(channel.permissionsFor(guildUser)); return new Discord.Permissions(channel.permissionsFor(guildUser)).has("VIEW_CHANNEL")}).map((channel) => channel.id)
+                                })
+                            }
+                            dbUser.guilds = guilds
                             console.log(dbUser)
                             dbUser.save()
                         
