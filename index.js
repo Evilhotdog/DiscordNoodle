@@ -409,6 +409,7 @@ client.on("message", (message) => {
         permissionsUpdate(message.guild.id)
     } else {
         if (message.guild) {
+            console.log(message.embeds)
     const content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
     const contentincludingembeds = message.embeds.length? message.embeds[0].description : content
     const authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
