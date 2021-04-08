@@ -410,8 +410,8 @@ client.on("message", (message) => {
     } else {
         if (message.guild) {
             
-    const content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
-    const authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
+    let content = message.content//.replace(">", "&gt;").replace("<", "&lt;")
+    let authorname = message.member.nickname? `${message.member.nickname}(${message.author.username})` : message.author.username
     if (message.embeds.length && message.author.id == "819988610811560017") {
     content = message.embeds.length? message.embeds[0].description : content
     
