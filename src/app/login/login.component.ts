@@ -10,12 +10,18 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
   username: String
   password: String
+  rejected: boolean = false
   constructor(private socketService: MessageServiceService, private router: Router) {
     this.socketService.loginSucceeded()
     .subscribe(data => {router.navigate(['/main'], {state: {
       guilds: JSON.stringify(data)
     }})})
+    this.socketService.loginFailed()
+    .subscribe(() => {
+      this.rejected = true
+    })
   }
+  
   model = new LoginUser("", "")
   ngOnInit(): void {
     
