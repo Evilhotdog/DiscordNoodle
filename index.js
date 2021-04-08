@@ -259,7 +259,15 @@ client.on("guildCreate", () => {
 client.on("guildDelete", () => {
     updateGuilds()
 })
-
+client.on("channelCreate", () => {
+    updateGuilds()
+})
+client.on("channelDelete", () => {
+    updateGuilds()
+})
+client.on("channelUpdate", () => {
+    updateGuilds()
+})
 client.on("guildMemberAdd", (member) => {
     User.findOne({user_id: member.id}).then((dbMember) => {
         //If the user that just joined exists on the database, update the user's allowed guilds and channels to include the new guild access
