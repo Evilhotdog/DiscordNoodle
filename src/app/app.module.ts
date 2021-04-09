@@ -7,12 +7,14 @@ import { MainComponent } from './main/main.component';
 import { MessageServiceService } from './message-service.service';
 import { FormsModule } from '@angular/forms';
 import { MessageComponent } from './message/message.component';
+import { CreditsComponent } from './credits/credits.component';
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     MainComponent,
-    MessageComponent
+    MessageComponent,
+    CreditsComponent
   ],
   imports: [
     BrowserModule,

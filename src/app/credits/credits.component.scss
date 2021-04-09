@@ -1,0 +1,50 @@
+:host {
+    background-color: #7289DA;
+    display: block;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+:host::-webkit-scrollbar {
+    width: 12px;
+}
+:host::-webkit-scrollbar-track {
+    background: #23272A;
+}
+:host::-webkit-scrollbar-thumb {
+    background-color: #7289DA;
+    border-radius: 20px;
+    border: 3px solid #23272A;
+}
+.back {
+    background-color: #23272A;
+    border-radius: 3px;
+    border: 1px solid #7289DA;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    color: #7289DA;
+    padding: 3px;
+}
+.contentbox {
+    text-align: justify;
+    padding: 10px;
+    background-color: #23272A;
+    width: 90%;
+    margin: 40px auto;
+    border-radius: 15px;
+    border: 1px solid black;
+    color: white;
+}
+h1, h2 {
+    color: #7289Da
+
+}
