@@ -236,8 +236,7 @@ function updateGuilds() {
             if (err) throw err
             //console.log(guild)
             if (dbGuild) {
-            dbGuild.overwrite(guild)
-            dbGuild.save()
+            dbGuild.overwrite(guild).then(() => {dbGuild.save()})
             } else {
             const guildToSave = new Guild(guild)
             guildToSave.save()
