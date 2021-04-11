@@ -35,11 +35,16 @@
         
     </div>
     <div class="messageBox" id="messageBox">
-        <div class="ifChannel" *ngIf="this.currentChannel">
+        <div class="ifChannel" *ngIf="this.currentChannel; else welcome">
         <div *ngFor="let message of this.currentChannel.messages; index as i; trackBy: trackByMessageId"  class="app-message">
             <app-message [message]=message></app-message>
         </div>
         </div>
+        <ng-template #welcome>
+            <div class="welcomepage">
+                <p>Welcome to DiscordNoodles! To get started, please click a server you are in on the side!</p>
+            </div>
+        </ng-template>
     </div>
     <div class="formBox">
         <form (ngSubmit)="sendMessage(messageForm)" #messageForm="ngForm" class="messageForm">
