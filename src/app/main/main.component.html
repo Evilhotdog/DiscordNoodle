@@ -43,13 +43,14 @@
         <ng-template #welcome>
             <div class="welcomepage">
                 <p>Welcome to DiscordNoodles! To get started, please click a server you are in on the side!</p>
+                <br>
             </div>
         </ng-template>
     </div>
     <div class="formBox">
         <form (ngSubmit)="sendMessage(messageForm)" #messageForm="ngForm" class="messageForm">
             <div class="form-group formgroupbox">
-                <input required [(ngModel)]="model.message" name="message" #message="ngModel" id="message" type="text" class="form-control forminputbox" autocomplete="off">
+                <input [(ngModel)]="model.message" name="message" #message="ngModel" id="message" type="text" class="form-control forminputbox" autocomplete="off">
             </div>
             <div class="form-group fileinput">
                 <input [(ngModel)]="model.attachment" name="file" #file="ngModel" id="file" type="file" class="form-control fileinput" (change)="fileChange($event)">
