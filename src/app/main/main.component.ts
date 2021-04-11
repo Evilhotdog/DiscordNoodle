@@ -127,11 +127,10 @@ export class MainComponent implements OnInit {
   bytes = null
   public fileChange(event) {
     this.file = event.target.files[0];
-    
   }
   public sendMessage(form: NgForm) {
     let bytes = this.bytes
-    let message = this.model.message
+    let message = this.model.message || ""
     //sends message and empties message box if user is typing into a channel and the box is not empty. 
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -145,11 +144,11 @@ export class MainComponent implements OnInit {
     }
     console.log(typeof this.file)
     
-    if (this.model.message && this.currentChannel) {
+    if (this.currentChannel) {
       console.log("Message")
       console.log(this.model.message)
       if (this.file) {
-        if (this.file.size <= 900000) {
+        if (this.file.size <= 1000000) {
       reader.readAsArrayBuffer(this.file)
         } else {
           alert("File too big!")

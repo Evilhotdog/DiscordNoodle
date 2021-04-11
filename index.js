@@ -112,7 +112,7 @@ io.on("connection", (socket) => {
     }                                                                                   )
 
     socket.on("userMessage", (arg) => {
-        //console.log(arg)
+        console.log(arg)
         client.guilds.fetch(arg.guild).then((guild) => {
             if (!guild) {console.log("No guild")}
             message = arg.message.message
@@ -123,10 +123,12 @@ io.on("connection", (socket) => {
             //console.log(guild)
             //console.log(id)
             //console.log("_+++_")
-            if (messageNoWhitespace && guild.member(id).permissionsIn(channel).has('SEND_MESSAGES')) {
+            if (guild.member(id).permissionsIn(channel).has('SEND_MESSAGES') && (message || arg.message.attachment)) {
                 const MessageEmbed = new Discord.MessageEmbed()
                 .setAuthor(username)
-                .setDescription(message)
+                if (messageNoWhitespace) {
+                    MessageEmbed.setDescription(message)
+                }
                 if (arg.message.attachment) {
                     //console.log(arg.message.attachment)
                     MessageEmbed.attachFiles([arg.message.attachment])
